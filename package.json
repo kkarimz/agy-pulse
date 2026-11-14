@@ -1,0 +1,17 @@
+{
+  "name": "agy-pulse",
+  "version": "1.0.0",
+  "description": "Cross-Mac Web Dashboard for Gemini Antigravity Subscription Quota, Burn-Rate Pace & Local Token Telemetry",
+  "type": "module",
+  "main": "src/server.mjs",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "dev": "node --watch src/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "launchd": "node src/server.mjs --print-launchd"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT"
+}

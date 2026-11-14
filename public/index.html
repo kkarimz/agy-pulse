@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antigravity Pulse — Subscription Quota &amp; Usage</title>
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="/icon.svg" alt="Antigravity Pulse" class="brand-icon" width="42" height="42" />
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <h1>Antigravity Pulse</h1>
+            <span id="machine-pill" class="pill pill-neutral">Loading Mac...</span>
+            <span id="profile-pill" class="pill pill-info hidden"></span>
+          </div>
+          <p class="brand-subtitle" id="network-subtitle">Connecting to local agy telemetry...</p>
+        </div>
+      </div>
+
+      <div class="topbar-controls">
+        <div class="meta-pills">
+          <span id="model-pill" class="pill pill-info" title="Active CLI Default Model">Model: —</span>
+          <a id="credits-pill" class="pill pill-neutral" href="https://antigravity.google/g1-upgrade" target="_blank" rel="noopener noreferrer" title="Remaining G1 AI Credits">
+            G1 Credits: —
+          </a>
+        </div>
+
+        <div class="control-group view-mode-group" role="group" aria-label="Dashboard view mode">
+          <button id="view-btn-overview" class="seg-btn active" data-view-mode="overview" type="button">Overview</button>
+          <button id="view-btn-advanced" class="seg-btn" data-view-mode="advanced" type="button">Advanced</button>
+        </div>
+
+        <div id="window-control-group" class="control-group hidden" role="group" aria-label="Telemetry time window">
+          <button class="seg-btn" data-window="5h">5h</button>
+          <button class="seg-btn" data-window="24h">24h</button>
+          <button class="seg-btn" data-window="7d">7d</button>
+          <button class="seg-btn active" data-window="all">All</button>
+        </div>
+
+        <label class="select-wrap" title="Auto-refresh interval">
+          <span class="sr-only">Auto Refresh</span>
+          <select id="auto-refresh-select" aria-label="Auto-refresh interval">
+            <option value="0">Auto: Off</option>
+            <option value="60000" selected>Auto: 1m</option>
+            <option value="300000">Auto: 5m</option>
+          </select>
+        </label>
+
+        <button id="refresh-btn" class="btn btn-primary" type="button">
+          <span class="btn-icon" aria-hidden="true">↻</span>
+          <span id="refresh-label">Refresh</span>
+        </button>
+
+        <button id="theme-toggle" class="btn btn-ghost" type="button" aria-label="Toggle Light or Dark mode" title="Toggle Light / Dark theme">
+          <span id="theme-icon" aria-hidden="true">☀️</span>
+          <span id="theme-label">Light</span>
+        </button>
+
+        <button id="settings-open-btn" class="btn btn-ghost" type="button" aria-label="Open Settings and Setup">
+          <span aria-hidden="true">⚙️</span>
+          <span>Settings</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <!-- STATE 1: LOADING -->
+      <section id="state-loading" class="ui-state" aria-live="polite" aria-label="Loading subscription quotas">
+        <div class="skeleton-grid">
+          <div class="card skeleton-card"><div class="sk-line w-40"></div><div class="sk-circle"></div><div class="sk-line w-80"></div></div>
+          <div class="card skeleton-card"><div class="sk-line w-40"></div><div class="sk-circle"></div><div class="sk-line w-80"></div></div>
+          <div class="card skeleton-card"><div class="sk-line w-40"></div><div class="sk-circle"></div><div class="sk-line w-80"></div></div>
+        </div>
+        <div class="card skeleton-wide">
+          <div class="sk-line w-30"></div>
+          <div class="sk-line w-100"></div>
+          <div class="sk-line w-90"></div>
+        </div>
+      </section>
+
+      <!-- STATE 2: ERROR -->
+      <section id="state-error" class="ui-state hidden" role="alert">
+        <div class="card error-card">
+          <div class="error-badge">▲ Telemetry Unavailable</div>
+          <h2 id="error-title">Could not retrieve live quota data</h2>
+          <p id="error-message" class="muted">Ensure <code>agy</code> CLI is installed and signed in on this Mac.</p>
+          <div class="error-actions">
+            <button id="error-retry-btn" class="btn btn-primary" type="button">Retry Now</button>
+            <button id="error-settings-btn" class="btn btn-ghost" type="button">Open Settings &amp; Setup Guide</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATE 3 & 4: POPULATED + EMPTY TELEMETRY BANNER -->
+      <section id="state-populated" class="ui-state hidden">
+        <div id="quota-warning-banner" class="banner warning-banner hidden" role="status"></div>
+        <div id="low-quota-alert-banner" class="banner low-quota-alert hidden" role="status"></div>
+
+        <!-- SIMPLE OVERVIEW VIEW (DEFAULT) -->
+        <section id="view-overview" class="overview-container" aria-labelledby="overview-heading">
+          <div class="overview-header">
+            <div>
+              <h2 id="overview-heading">Subscription Quota Remaining</h2>
+              <p class="muted small">Live usage &amp; reset countdowns across your Gemini Antigravity subscription</p>
+            </div>
+            <button id="overview-to-advanced-btn" class="btn btn-ghost" type="button">Open Advanced Telemetry →</button>
+          </div>
+
+          <!-- TOP: GEMINI QUOTAS -->
+          <div id="overview-gemini-section" class="overview-provider-section">
+            <div class="provider-banner provider-banner-gemini">
+              <h3>✦ Gemini Models &amp; Gemini 4 Argon</h3>
+              <span class="muted small">Primary Google Antigravity subscription quotas</span>
+            </div>
+
+            <div class="overview-window-block">
+              <div class="overview-section-title-row">
+                <span class="window-tag window-tag-5h">⏱ Gemini · 5-Hour Rolling Limit</span>
+                <span class="muted small">Refreshes every 5 hours</span>
+              </div>
+              <div id="overview-gemini-5h-grid" class="overview-grid"></div>
+            </div>
+
+            <div class="overview-window-block">
+              <div class="overview-section-title-row">
+                <span class="window-tag window-tag-weekly">📅 Gemini · Weekly Baseline Limits</span>
+                <span class="muted small">7-day subscription limits (Hydrogen/Flash &amp; Argon)</span>
+              </div>
+              <div id="overview-gemini-weekly-grid" class="overview-grid"></div>
+            </div>
+          </div>
+
+          <!-- BOTTOM: CLAUDE & GPT QUOTAS -->
+          <div id="overview-3p-section" class="overview-provider-section overview-provider-3p">
+            <div class="provider-banner provider-banner-3p">
+              <h3>◇ Claude &amp; GPT Models</h3>
+              <span class="muted small">Third-party models (Claude Opus 5.5, Sonnet 5.5, GPT-OSS 120B)</span>
+            </div>
+
+            <div class="overview-window-block">
+              <div class="overview-section-title-row">
+                <span class="window-tag window-tag-5h">⏱ Claude &amp; GPT · 5-Hour Rolling Limit</span>
+                <span class="muted small">Refreshes every 5 hours</span>
+              </div>
+              <div id="overview-3p-5h-grid" class="overview-grid"></div>
+            </div>
+
+            <div class="overview-window-block">
+              <div class="overview-section-title-row">
+                <span class="window-tag window-tag-weekly">📅 Claude &amp; GPT · Weekly Baseline Limit</span>
+                <span class="muted small">7-day third-party limit</span>
+              </div>
+              <div id="overview-3p-weekly-grid" class="overview-grid"></div>
+            </div>
+          </div>
+
+          <div id="overview-summary-strip" class="card overview-strip"></div>
+        </section>
+
+        <!-- ADVANCED VIEW -->
+        <div id="view-advanced" class="hidden">
+        <!-- Subscription Quota Gauges -->
+        <section class="section-block" aria-labelledby="quota-heading">
+          <div class="section-header">
+            <div>
+              <h2 id="quota-heading">Live Subscription Quotas</h2>
+              <p id="quota-policy-desc" class="muted">Rolling 5-hour demand smoothing and 7-day subscription limits.</p>
+            </div>
+            <div class="legend-pills" aria-label="Burn-rate pace legend">
+              <span class="pace-badge pace-safe">● Safe</span>
+              <span class="pace-badge pace-on_pace">◐ On Pace</span>
+              <span class="pace-badge pace-burning_fast">▲ Burning Fast</span>
+            </div>
+          </div>
+
+          <div id="quota-groups-grid" class="quota-groups-grid"></div>
+        </section>
+
+        <!-- Empty State Callout (shown inside Populated view when local transcripts for selected window are 0) -->
+        <section id="state-empty" class="card empty-card hidden" aria-live="polite">
+          <div class="empty-icon" aria-hidden="true">◎</div>
+          <h2>No local sessions in this time window</h2>
+          <p id="empty-message" class="muted">
+            Your subscription quotas above are live, but this Mac has no recorded Antigravity planner steps inside the selected window. Switch to <strong>All</strong> or start a session with <code>agy</code>.
+          </p>
+          <button id="empty-reset-window" class="btn btn-ghost" type="button">Show All-Time Telemetry</button>
+        </section>
+
+        <!-- Telemetry Analytics Grid -->
+        <section id="telemetry-section" class="section-block">
+          <div class="kpi-grid" id="kpi-grid"></div>
+
+          <div class="two-col-grid">
+            <article class="card chart-card">
+              <div class="card-header">
+                <div>
+                  <h3>Quota Snapshot History</h3>
+                  <p class="muted small">Tracked locally across refreshes on this Mac</p>
+                </div>
+                <span id="history-count-badge" class="pill pill-neutral">0 pts</span>
+              </div>
+              <div id="quota-history-chart" class="chart-container"></div>
+              <div id="quota-history-legend" class="chart-legend"></div>
+            </article>
+
+            <article class="card chart-card">
+              <div class="card-header">
+                <div>
+                  <h3>Local Token Breakdown by Model</h3>
+                  <p class="muted small">Uncached input · Cache read · Output tokens</p>
+                </div>
+                <span id="window-badge" class="pill pill-neutral">Window: All</span>
+              </div>
+              <div id="model-breakdown-list" class="model-breakdown-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Cross-Mac Federation Panel -->
+        <section class="section-block" aria-labelledby="cross-mac-heading">
+          <article class="card cross-mac-card">
+            <div class="card-header cross-mac-header">
+              <div>
+                <h2 id="cross-mac-heading">Cross-Mac Comparison</h2>
+                <p class="muted small">
+                  Both Macs share one subscription quota. Connect your second Mac over LAN or Tailscale to compare local token usage side by side.
+                </p>
+              </div>
+              <form id="peer-form" class="peer-form">
+                <input
+                  id="peer-url-input"
+                  type="url"
+                  placeholder="http://second-mac.local:4321"
+                  aria-label="Peer Mac URL"
+                />
+                <button class="btn btn-primary" type="submit">Connect Peer</button>
+                <button id="peer-clear-btn" class="btn btn-ghost" type="button">Clear</button>
+              </form>
+            </div>
+            <div id="cross-mac-body" class="cross-mac-body"></div>
+          </article>
+        </section>
+
+        <!-- Recent Conversations Table -->
+        <section id="conversations-section" class="section-block" aria-labelledby="conversations-heading">
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h2 id="conversations-heading">Recent Local Conversations</h2>
+                <p class="muted small">Read-only summary from <code>conversation_summaries.db</code> &amp; <code>transcript.jsonl</code></p>
+              </div>
+              <input
+                id="conversation-search"
+                type="search"
+                class="search-input"
+                placeholder="Filter by title, workspace, or model..."
+                aria-label="Filter conversations"
+              />
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Conversation</th>
+                    <th>Workspace</th>
+                    <th>Models</th>
+                    <th class="num">Steps</th>
+                    <th class="num">Input</th>
+                    <th class="num">Cache Read</th>
+                    <th class="num">Output</th>
+                    <th class="num">Cache Hit</th>
+                    <th>Last Active</th>
+                  </tr>
+                </thead>
+                <tbody id="conversations-tbody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-left">
+        <span id="last-updated-text" class="muted small">Last updated: —</span>
+        <span class="muted small">·</span>
+        <span id="g1-policy-text" class="muted small">Overage fallback (useG1Credits): —</span>
+      </div>
+      <div class="footer-right">
+        <label class="qa-switcher small muted">
+          UI State:
+          <select id="qa-state-select" aria-label="Preview UI state">
+            <option value="auto" selected>Auto (Live)</option>
+            <option value="loading">Preview: Loading</option>
+            <option value="empty">Preview: Empty</option>
+            <option value="error">Preview: Error</option>
+          </select>
+        </label>
+      </div>
+    </footer>
+  </div>
+
+  <!-- SETTINGS & ACCOUNT ONBOARDING MODAL -->
+  <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+    <div class="card modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="settings-modal-title">Settings &amp; Account Setup</h2>
+          <p class="muted small">Customize this instance for your own Antigravity subscription and Macs</p>
+        </div>
+        <button id="settings-close-x" class="btn btn-ghost" type="button" aria-label="Close Settings">✕</button>
+      </div>
+
+      <section class="diag-box" aria-label="Account and CLI diagnostics">
+        <div class="diag-header">
+          <strong>Account &amp; CLI Connection Status</strong>
+          <span class="muted small">Local-only — credentials never leave your Mac</span>
+        </div>
+        <div id="settings-diagnostics" class="diag-grid"></div>
+        <p class="muted small diag-hint">
+          Using this on a new Mac or account? Run <code>agy</code> in your terminal to sign in with your own Google account, then click <strong>Refresh</strong>.
+        </p>
+      </section>
+
+      <form id="settings-form" class="settings-form">
+        <div class="form-grid">
+          <label class="form-field">
+            <span>Profile / Plan Name</span>
+            <input id="cfg-profile-name" type="text" maxlength="60" placeholder="e.g. Personal Pro or Work Team" />
+          </label>
+
+          <label class="form-field">
+            <span>This Mac Label</span>
+            <input id="cfg-mac-label" type="text" maxlength="60" placeholder="e.g. Primary Mac or Work Mac" />
+          </label>
+
+          <label class="form-field">
+            <span>Second Mac (Peer URL)</span>
+            <input id="cfg-peer-url" type="url" maxlength="200" placeholder="http://second-mac.local:4321" />
+          </label>
+
+          <label class="form-field">
+            <span>Default Landing View</span>
+            <select id="cfg-default-view">
+              <option value="overview">Simple Overview</option>
+              <option value="advanced">Advanced Telemetry</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Low Quota Warning Threshold (%)</span>
+            <input id="cfg-warning-threshold" type="number" min="5" max="80" step="1" value="20" />
+          </label>
+
+          <label class="form-field form-checkbox">
+            <input id="cfg-show-3p" type="checkbox" checked />
+            <span>Show Claude &amp; GPT (Third-Party) Quotas</span>
+          </label>
+
+          <label class="form-field">
+            <span>Custom agy Binary Path (Optional)</span>
+            <input id="cfg-agy-bin" type="text" maxlength="300" placeholder="Auto-detected (~/.local/bin/agy)" />
+          </label>
+
+          <label class="form-field">
+            <span>Custom Antigravity Data Dir (Optional)</span>
+            <input id="cfg-data-dir" type="text" maxlength="300" placeholder="Auto-detected (~/.gemini/antigravity-cli)" />
+          </label>
+        </div>
+
+        <p id="settings-feedback" class="small muted hidden"></p>
+
+        <div class="modal-footer">
+          <button id="settings-reset-btn" class="btn btn-ghost" type="button">Reset Defaults</button>
+          <div class="modal-footer-right">
+            <button id="settings-close-btn" class="btn btn-ghost" type="button">Cancel</button>
+            <button id="settings-save-btn" class="btn btn-primary" type="submit">Save Settings</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

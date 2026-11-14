@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+*.log
+.env
+coverage/
+agy-pulse-history.json
+agy-pulse-config.json
+*.db*
+*.jsonl
+*.plist
+*oauth*
+settings.json
